@@ -26,7 +26,7 @@ function EpisodeList({ episodes, feedSlug, feedArtworkUrl, selectedIds, onToggle
     );
   }
 
-  const selectableEpisodes = episodes.filter(ep => ep.status !== 'processing');
+  const selectableEpisodes = episodes.filter(ep => ep.status !== 'processing' && !ep.titleSkipped);
   const allSelected = selectedIds && selectableEpisodes.length > 0 &&
     selectableEpisodes.every(ep => selectedIds.has(ep.id));
 

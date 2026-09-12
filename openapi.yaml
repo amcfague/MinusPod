@@ -10356,6 +10356,9 @@ components:
         pendingReviewCount:
           type: integer
           description: Number of ads held for human review (not yet approved or dismissed)
+        titleSkipped:
+          type: boolean
+          description: Episode title matches this feed's title-skip patterns and is ineligible for bulk processing.
         artworkUrl:
           type: string
           nullable: true

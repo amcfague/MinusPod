@@ -15,6 +15,7 @@ from api import (
 )
 from config import (
     is_pending_review, normalize_segment_category, resolve_chapters_in_notes,
+    title_matches_skip_patterns,
     resolve_feed_processing_mode, DEFAULT_SEGMENT_ACTION,
     PROCESSING_MODE_PASSTHROUGH, PROCESSING_MODE_SKIP_DETECTION, PROCESSING_MODE_CUE_ONLY,
 )
@@ -278,6 +279,7 @@ def list_episodes(slug):
         source_slug = ep.get('source_slug')
         item = _episode_base_json(
             ep, slug=source_slug or slug,
+            title_skip_patterns=podcast.get('title_skip_patterns'),
             is_local=(ep.get('source_feed_type') == 'local') if source_slug else is_local,
             storage=storage)
         item['ad_count'] = ep['ads_removed']
@@ -329,7 +331,8 @@ def _local_artwork_fallback_url(ep, *, is_local, storage, slug):
     return f"/api/v1/feeds/{slug}/episodes/{ep['episode_id']}/artwork"
 
 
-def _episode_base_json(ep, *, slug=None, is_local=False, storage=None):
+def _episode_base_json(ep, *, slug=None, is_local=False, storage=None,
+                       title_skip_patterns=None):
     """Shared camelCase fields for the episode list and detail serializers.
 
     Status is mapped for frontend compatibility: 'processed' -> 'completed';
@@ -371,6 +374,8 @@ def _episode_base_json(ep, *, slug=None, is_local=False, storage=None):
         'error': ep.get('error_message'),
         'artworkUrl': artwork_url,
         'pendingReviewCount': ep.get('pending_review_count', 0),
+        'titleSkipped': title_matches_skip_patterns(
+            ep.get('title'), title_skip_patterns),
     }
 
 
@@ -1446,6 +1451,14 @@ def bulk_episode_action(slug):
             episode = episodes_by_id.get(episode_id)
             if not episode:
                 skipped += 1
+                continue
+            if title_matches_skip_patterns(
+                    episode.get('title'), podcast.get('title_skip_patterns')):
+                skipped += 1
+                skipped_episodes.append({
+                    'episodeId': episode_id,
+                    'reason': 'Title matches feed title-skip patterns',
+                })
                 continue
             if episode.get('status') == EpisodeStatus.DISCOVERED.value:
                 eligible_ids.append(episode_id)

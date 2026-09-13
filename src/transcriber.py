@@ -69,6 +69,13 @@ from config import (
     log_download_query_enabled,
 )
 
+
+def _audio_url_trust():
+    if os.environ.get('MINUSPOD_ALLOW_PRIVATE_FEED_HOSTS', '').strip().lower() in (
+            '1', 'true', 'yes', 'on'):
+        return URLTrust.OPERATOR_CONFIGURED
+    return URLTrust.FEED_CONTENT
+
 # Suppress ONNX Runtime warnings before importing faster_whisper
 os.environ.setdefault('ORT_LOG_LEVEL', 'ERROR')
 
@@ -1772,7 +1779,7 @@ class Transcriber:
         try:
             response = safe_head(
                 url,
-                trust=URLTrust.FEED_CONTENT,
+                trust=_audio_url_trust(),
                 timeout=timeout,
                 # Megaphone / Art19 / simplecast often chain 6-8 redirects
                 # (CDN edge -> regional -> asset), and Acast adds analytics
@@ -1832,7 +1839,7 @@ class Transcriber:
             }
             response = safe_get(
                 url,
-                trust=URLTrust.FEED_CONTENT,
+            trust=_audio_url_trust(),
                 timeout=timeout,
                 max_redirects=HTTP_MAX_REDIRECTS_FEED,
                 stream=True,

@@ -9,7 +9,7 @@ import pytest
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from utils.url import validate_url, SSRFError
+from utils.url import validate_base_url, validate_url, SSRFError
 
 
 class TestValidSchemes:
@@ -59,6 +59,12 @@ class TestBlockedHosts:
         ]):
             with pytest.raises(SSRFError, match="Blocked loopback IP"):
                 validate_url('http://localhost/admin')
+
+    def test_private_host_allowed_for_operator_configured_url(self):
+        with patch('utils.url.socket.getaddrinfo', return_value=[
+            (socket.AF_INET, socket.SOCK_STREAM, 6, '', ('192.168.1.10', 80))
+        ]):
+            assert validate_base_url('http://192.168.1.10/feed.xml')
 
     def test_127_0_0_1_blocked(self):
         with patch('utils.url.socket.getaddrinfo', return_value=[

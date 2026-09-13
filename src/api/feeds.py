@@ -58,7 +58,7 @@ from database.podcasts import (EPISODE_STATUSES, RECENTS_SLUG, PodcastMixin, has
                                is_recents_feed, recents_cutoff)
 from podping_listener import feed_url_domain
 from utils.time import utc_now_iso
-from utils.url import validate_url, SSRFError
+from utils.url import validate_base_url, validate_url, SSRFError
 from utils.validation import is_valid_slug
 
 from slugify import slugify as make_slug
@@ -207,6 +207,13 @@ def _fetch_feed_content(url, timeout=30):
     return parser, content
 
 
+def _validate_feed_source_url(url):
+    validator = validate_base_url if os.environ.get(
+        'MINUSPOD_ALLOW_PRIVATE_FEED_HOSTS', '').strip().lower() in (
+            '1', 'true', 'yes', 'on') else validate_url
+    return validator(url)
+
+
 def _validate_source_url(value):
     """Validate a replacement source feed URL (#484).
 
@@ -220,7 +227,7 @@ def _validate_source_url(value):
     if not url:
         return None, 'sourceUrl must be a non-empty string'
     try:
-        validate_url(url)
+        _validate_feed_source_url(url)
     except SSRFError as e:
         logger.warning(f"SSRF blocked in update_feed: {e} (url={url})")
         return None, f'Invalid feed URL: {e}'
@@ -1154,7 +1161,7 @@ def add_feed():
 
     # SSRF protection: validate URL before any outbound request
     try:
-        validate_url(source_url)
+        _validate_feed_source_url(source_url)
     except SSRFError as e:
         logger.warning(f"SSRF blocked in add_feed: {e} (url={source_url})")
         return error_response(f'Invalid feed URL: {e}', 400)

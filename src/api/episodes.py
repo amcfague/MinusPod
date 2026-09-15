@@ -1805,6 +1805,32 @@ def get_processing_episodes():
     return json_response(episodes + queued)
 
 
+@api.route('/episodes/processing/cancel-all', methods=['POST'])
+@log_request
+def cancel_all_processing():
+    """Cancel all active runs and remove every queued episode."""
+    db = get_database()
+    status_service = get_status_service()
+    conn = db.get_connection()
+    active = conn.execute(
+        """SELECT p.slug, r.episode_id
+           FROM processing_runs r
+           JOIN podcasts p ON p.id = r.podcast_id
+           WHERE r.state IN ('running', 'cancel_requested')"""
+    ).fetchall()
+    requested = sum(
+        request_cancellation(row['slug'], row['episode_id']) is not None
+        for row in active
+    )
+    closed = db.close_all_queue_rows()
+    removed = status_service.remove_all_queued_episodes()
+    return json_response({
+        'message': 'Cancellation requested for all active and queued episodes',
+        'activeRequested': requested,
+        'queuedRemoved': max(closed, removed),
+    })
+
+
 @api.route('/feeds/<slug>/episodes/<episode_id>/cancel', methods=['POST'])
 @log_request
 def cancel_episode_processing(slug, episode_id):

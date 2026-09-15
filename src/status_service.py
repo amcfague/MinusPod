@@ -414,6 +414,19 @@ class StatusService:
             self._notify_subscribers()
         return removed
 
+    def remove_all_queued_episodes(self) -> int:
+        """Drop every queued display entry. Returns count removed."""
+        with self._status_transaction():
+            status = self._load()
+            queued = status.get('queued_episodes', [])
+            if not queued:
+                return 0
+            status['queued_episodes'] = []
+            status['last_updated'] = time.time()
+            self._write_status_file(status)
+        self._notify_subscribers()
+        return len(queued)
+
     def get_queue_position(self, slug: str, episode_id: str) -> int:
         """Get queue position for an episode (1-based, 0 if not queued)."""
         with self._status_transaction():

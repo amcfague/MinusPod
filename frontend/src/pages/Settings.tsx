@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSyncFromQuery } from '../hooks/useSyncFromQuery';
 import { useLocation } from 'react-router';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import { getSettings, updateSettings, resetSettings, resetPrompts, resetPrompt, getModels, getWhisperModels, getSystemStatus, runCleanup, getProcessingEpisodes, cancelProcessing, setQueuePriority, refreshModels, getRetention, updateRetention, getProcessingTimeouts, updateProcessingTimeouts, getAudioSettings, updateAudioSettings } from '../api/settings';
+import { getSettings, updateSettings, resetSettings, resetPrompts, resetPrompt, getModels, getWhisperModels, getSystemStatus, runCleanup, getProcessingEpisodes, cancelProcessing, cancelAllProcessing, setQueuePriority, refreshModels, getRetention, updateRetention, getProcessingTimeouts, updateProcessingTimeouts, getAudioSettings, updateAudioSettings } from '../api/settings';
 import type { PromptName } from '../api/settings';
 import { getReviewerSettings, updateReviewerSettings } from '../api/community';
 import { getErrorMessage } from '../api/client';
@@ -454,6 +454,14 @@ function Settings() {
     },
   });
 
+  const cancelAllMutation = useMutation({
+    mutationFn: cancelAllProcessing,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['processing-episodes'] });
+      queryClient.invalidateQueries({ queryKey: ['status'] });
+    },
+  });
+
   const priorityMutation = useMutation({
     mutationFn: ({ slug, episodeId, ...change }:
       { slug: string; episodeId: string; priority?: number; delta?: number }) =>
@@ -878,7 +886,8 @@ function Settings() {
       <ProcessingQueueSection
         processingEpisodes={processingEpisodes}
         onCancel={(params) => cancelMutation.mutate(params)}
-        cancelIsPending={cancelMutation.isPending}
+        onCancelAll={() => cancelAllMutation.mutate()}
+        cancelIsPending={cancelMutation.isPending || cancelAllMutation.isPending}
         cancelingKey={cancelMutation.variables
           ? `${cancelMutation.variables.slug}:${cancelMutation.variables.episodeId}`
           : null}

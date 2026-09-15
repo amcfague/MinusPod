@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE: ttlequals0/minuspod
+  IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/minuspod
 
 jobs:
   publish:

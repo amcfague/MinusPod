@@ -27,6 +27,7 @@ const PRIORITY_STEP = 5;
 interface ProcessingQueueSectionProps {
   processingEpisodes: ProcessingEpisode[] | undefined;
   onCancel: (params: { slug: string; episodeId: string }) => void;
+  onCancelAll?: () => void;
   cancelIsPending: boolean;
   /** `slug:episodeId` of the row a cancel is in flight for, if any. */
   cancelingKey?: string | null;
@@ -46,6 +47,7 @@ function episodeKey(episode: ProcessingEpisode): string {
 function ProcessingQueueSection({
   processingEpisodes,
   onCancel,
+  onCancelAll,
   cancelIsPending,
   cancelingKey,
   queuePage,
@@ -171,6 +173,12 @@ function ProcessingQueueSection({
       ) : null}
       {hasProcessing ? (
         <div className="space-y-4">
+          {onCancelAll && <div className="flex justify-end">
+            <button type="button" onClick={onCancelAll} disabled={cancelIsPending}
+              className={`px-3 py-2 text-sm rounded ${btnDestructive} disabled:opacity-50 ${focusRing}`}>
+              {cancelIsPending ? 'Canceling...' : 'Cancel all'}
+            </button>
+          </div>}
           {active.length > 0 && (
             <div className="space-y-2">
               {active.map((episode) => (

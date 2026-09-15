@@ -81,6 +81,7 @@ vi.mock('../api/settings', () => ({
   runCleanup: vi.fn(),
   getProcessingEpisodes: vi.fn().mockResolvedValue([]),
   cancelProcessing: vi.fn(),
+  cancelAllProcessing: vi.fn(),
   setQueuePriority: vi.fn(),
   getOfflineQueueSettings: vi.fn().mockResolvedValue({
     enabled: false, ttlHours: 48, deferredCount: 0,

@@ -104,6 +104,7 @@ export interface Feed {
   transitionSnapEnabled?: boolean | null;
   maxAdDurationOverride?: number | null;
   maxAdDurationRejectOverride?: number | null;
+  adDetectionExcludeStartOverride?: number | null;
   cueGatedApproval?: boolean | null;
   // Layer 3 cross-fetch differential. Null means auto: the stage runs when
   // the feed looks DAI-served; an explicit true/false overrides that.

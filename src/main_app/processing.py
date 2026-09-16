@@ -90,6 +90,7 @@ from config import (
     resolve_silence_snap_tunables,
     resolve_tail_retranscribe_tunables,
     resolve_max_ad_duration_override,
+    resolve_ad_detection_exclude_start_seconds,
     resolve_max_ad_duration,
     resolve_max_ad_duration_confirmed,
     resolve_cue_gated_approval,
@@ -3151,13 +3152,13 @@ def _run_verification_pass(ctx, processed_path, pass1_cuts,
             reuse_transcript=reuse_transcript,
             feed_id=ctx.podcast_id,
         )
-        opening_exclusion_seconds = db.get_setting_float('ad_detection_exclude_start_seconds', 0.0)
+        opening_exclusion_seconds = resolve_ad_detection_exclude_start_seconds(
+            db, ctx.podcast_id)
         verification_pairs = [
             (original, processed)
             for original, processed in zip(
                 verification_result.get('ads', []),
-                verification_result.get('ads_processed', []),
-                strict=True)
+                verification_result.get('ads_processed', []))
             if original.get('start', 0) >= opening_exclusion_seconds
         ]
         verification_ads_original = [pair[0] for pair in verification_pairs]
@@ -5284,7 +5285,8 @@ def process_episode(slug: str, episode_id: str, episode_url: str,
                 )
                 _check_cancel(cancel_event, slug, episode_id)
 
-                opening_exclusion_seconds = db.get_setting_float('ad_detection_exclude_start_seconds', 0.0)
+                opening_exclusion_seconds = resolve_ad_detection_exclude_start_seconds(
+                    db, podcast_id)
                 first_pass_ads = _exclude_opening_ads(first_pass_ads, opening_exclusion_seconds)
                 first_pass_count = len(first_pass_ads)
 

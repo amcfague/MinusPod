@@ -1,6 +1,9 @@
 """Opening-window exclusion for ad markers."""
+from tests.app_bootstrap import bootstrap
 
-from main_app.processing import _exclude_opening_ads
+bootstrap('opening_ad_exclusion_test_')
+
+from main_app.processing import _exclude_opening_ads  # noqa: E402
 
 
 def test_excludes_ads_starting_in_opening_window():

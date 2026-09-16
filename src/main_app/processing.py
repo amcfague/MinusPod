@@ -3158,7 +3158,7 @@ def _run_verification_pass(ctx, processed_path, pass1_cuts,
             (original, processed)
             for original, processed in zip(
                 verification_result.get('ads', []),
-                verification_result.get('ads_processed', []))
+                verification_result.get('ads_processed', []), strict=True)
             if original.get('start', 0) >= opening_exclusion_seconds
         ]
         verification_ads_original = [pair[0] for pair in verification_pairs]

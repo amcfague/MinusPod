@@ -1,6 +1,9 @@
 """Per-podcast opening ad-exclusion resolution."""
+from tests.app_bootstrap import bootstrap
 
-from config import resolve_ad_detection_exclude_start_seconds
+bootstrap('intro_exclusion_resolver_test_')
+
+from config import resolve_ad_detection_exclude_start_seconds  # noqa: E402
 
 
 class _DB:

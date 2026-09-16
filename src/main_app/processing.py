@@ -5220,6 +5220,8 @@ def process_episode(slug: str, episode_id: str, episode_url: str,
             run_stats['transcript_segments'] = len(segments)
 
             podcast_id = ctx.podcast_id
+            opening_exclusion_seconds = resolve_ad_detection_exclude_start_seconds(
+                db, podcast_id)
             if skip_detection:
                 # Stages 3-4 skipped: no prior, no detection, no validation.
                 # Stage 4 in particular must not run on the empty list because
@@ -5285,8 +5287,6 @@ def process_episode(slug: str, episode_id: str, episode_url: str,
                 )
                 _check_cancel(cancel_event, slug, episode_id)
 
-                opening_exclusion_seconds = resolve_ad_detection_exclude_start_seconds(
-                    db, podcast_id)
                 first_pass_ads = _exclude_opening_ads(first_pass_ads, opening_exclusion_seconds)
                 first_pass_count = len(first_pass_ads)
 

@@ -644,6 +644,7 @@ export interface Settings {
   silenceSnapMinDurationSeconds: SettingValueNumber;
   silenceSnapMaxDistanceSeconds: SettingValueNumber;
   minContentBetweenAdsSeconds: SettingValueNumber;
+  adDetectionExcludeStartSeconds: SettingValueNumber;
   maxAdDurationSeconds: SettingValueNumber;
   maxAdDurationConfirmedSeconds: SettingValueNumber;
   positionalPriorEnabled: SettingValueBoolean;
@@ -779,6 +780,7 @@ export interface Settings {
     silenceSnapMinDurationSeconds: number;
     silenceSnapMaxDistanceSeconds: number;
     minContentBetweenAdsSeconds: number;
+    adDetectionExcludeStartSeconds: number;
     maxAdDurationSeconds: number;
     maxAdDurationConfirmedSeconds: number;
     positionalPriorEnabled: boolean;
@@ -880,6 +882,7 @@ export interface UpdateSettingsPayload {
   silenceSnapMinDurationSeconds?: number;
   silenceSnapMaxDistanceSeconds?: number;
   minContentBetweenAdsSeconds?: number;
+  adDetectionExcludeStartSeconds?: number;
   maxAdDurationSeconds?: number;
   maxAdDurationConfirmedSeconds?: number;
   positionalPriorEnabled?: boolean;
